@@ -14,11 +14,8 @@ namespace LoadBalancer {
 
         private bool running = false;
 
-        private int serverMaxCons;
-        private int numOfServers;
-        private double servConv;
-
         private Socket listener;
+        private ServerPickert serverPicker;
 
         /// <summary>
         /// Initializes a load balancer.
@@ -26,10 +23,12 @@ namespace LoadBalancer {
         /// <param name="port">Port number the load balancer will run on</param>
         public LoadBalancer(int port) {
             checker = new CrashChecker();
-            checker.SetInterval(5000);
+            checker.SetInterval(500);
             checker.SetServers(servers);
             checker.Crash += CrashServer;
             checker.Reboot += RebootServer;
+
+            serverPicker = new ServerPickert();
 
             listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             listener.Bind(new IPEndPoint(IPAddress.Any, 8080));
@@ -124,22 +123,15 @@ namespace LoadBalancer {
                 Socket client = listener.Accept();
 
                 if (!running) break;
-
-                string ip = ((IPEndPoint)client.RemoteEndPoint).Address.ToString();
-                ip = ip.Replace(".", "");
-                double last = Double.Parse(ip.Substring(ip.Length - serverMaxCons, serverMaxCons));
-
-                int servNum = (int)((last / numOfServers) * (numOfServers * servConv));
-
-                Console.WriteLine("Request received, forwarding to server " + (servNum + 1) + ". Origin: " + ip);
+                int servNum = serverPicker.determineServer(client);
                 Conduit.HandleRequest(client, servers.ElementAt(servNum));
+                string ip = ((IPEndPoint)client.RemoteEndPoint).Address.ToString();
+                Console.WriteLine("Request received, forwarding to server " + (servNum + 1) + ". Origin: " + ip);
             }
         }
 
         private void updateBalanceData() {
-            numOfServers = servers.Count;
-            serverMaxCons = numOfServers.ToString().Length;
-            servConv = numOfServers / Math.Pow(10, (double)serverMaxCons);
+            serverPicker.updateBalanceData(servers.Count);
         }
     }
 }

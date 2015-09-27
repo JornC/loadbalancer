@@ -11,6 +11,7 @@ namespace FakeServer {
         private Socket s;
         private int id;
         private int port;
+        private ManualResetEvent handle = new ManualResetEvent(false);
 
         private bool running;
 
@@ -20,7 +21,7 @@ namespace FakeServer {
 
             s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             s.Bind(new IPEndPoint(IPAddress.Any, port));
-            s.Listen(5);
+            s.Listen(100);
         }
 
         public void Listen() {
@@ -28,16 +29,27 @@ namespace FakeServer {
                 Console.WriteLine("Server " + id + " started successfully..");
                 running = true;
 
-                while (true) {
-                    Socket client = s.Accept();
-
-                    client.Receive(new byte[1024]);
-                    client.Send(System.Text.Encoding.UTF8.GetBytes("This is server " + id + "."));
-                    client.Close();
+                while (running) {
+                    handle.Reset();
+                    Console.WriteLine("waiting for incoming connection");
+                    s.BeginAccept(new AsyncCallback(handleConnection), s);
+                    handle.WaitOne();
                 }
             } catch (Exception e) {
                 running = false;
             }
+        }
+
+        public void handleConnection(IAsyncResult callback)
+        {
+            Socket client = (Socket) callback.AsyncState;
+            Socket con = client.EndAccept(callback);
+
+            handle.Set();
+
+            con.Receive(new byte[1024]);
+            con.Send(System.Text.Encoding.UTF8.GetBytes("This is server " + id + "."));
+            con.Close();
         }
 
         public void Reboot() {
