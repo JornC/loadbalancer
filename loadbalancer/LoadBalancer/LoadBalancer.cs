@@ -15,7 +15,7 @@ namespace LoadBalancer {
         private bool running = false;
 
         private Socket listener;
-        private ServerPickert serverPicker;
+        private IServerPickert serverPicker;
 
         /// <summary>
         /// Initializes a load balancer.
@@ -23,12 +23,12 @@ namespace LoadBalancer {
         /// <param name="port">Port number the load balancer will run on</param>
         public LoadBalancer(int port) {
             checker = new CrashChecker();
-            checker.SetInterval(500);
+            checker.SetInterval(2500);
             checker.SetServers(servers);
             checker.Crash += CrashServer;
             checker.Reboot += RebootServer;
 
-            serverPicker = new ServerPickert();
+            serverPicker = new RoundRobinServerPicker();
 
             listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             listener.Bind(new IPEndPoint(IPAddress.Any, 8080));
@@ -46,6 +46,12 @@ namespace LoadBalancer {
         public void AddServer(IPEndPoint ep) {
             servers.Add(ep);
             checker.SetServers(servers);
+            updateBalanceData();
+        }
+
+        internal void setServerPicker(IServerPickert serverPicker)
+        {
+            this.serverPicker = serverPicker;
             updateBalanceData();
         }
 
@@ -123,7 +129,9 @@ namespace LoadBalancer {
                 Socket client = listener.Accept();
 
                 if (!running) break;
+
                 int servNum = serverPicker.determineServer(client);
+
                 Conduit.HandleRequest(client, servers.ElementAt(servNum));
                 string ip = ((IPEndPoint)client.RemoteEndPoint).Address.ToString();
                 Console.WriteLine("Request received, forwarding to server " + (servNum + 1) + ". Origin: " + ip);

@@ -31,6 +31,25 @@ namespace LoadBalancer {
             Console.WriteLine("Press any key to start.");
             Console.ReadKey(true);
             lb.StartBalancingAsync();
+
+            while (true)
+            {
+                Console.WriteLine("Input:");
+                String input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "round robin":
+                        lb.setServerPicker(new RoundRobinServerPicker());
+                        Console.WriteLine("Switched to Round Robin picking..");
+                        break;
+                    default:
+                    case "ip":
+                        lb.setServerPicker(new IPServerPicker());
+                        Console.WriteLine("Switched to IP based picking..");
+                        break;
+                }
+            }
         }
     }
 }

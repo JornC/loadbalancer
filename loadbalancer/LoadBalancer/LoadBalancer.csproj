@@ -53,7 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ServerPickert.cs" />
+    <Compile Include="RoundRobinServerPickert.cs" />
+    <Compile Include="IServerPickert.cs" />
+    <Compile Include="IPServerPickert.cs" />
     <Compile Include="Conduit.cs" />
     <Compile Include="CrashChecker.cs" />
     <Compile Include="LoadBalancer.cs" />

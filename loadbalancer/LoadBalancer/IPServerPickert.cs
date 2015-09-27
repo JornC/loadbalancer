@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 
 namespace LoadBalancer
 {
-    class ServerPickert
+    class IPServerPicker : IServerPickert
     {
-        public int serverMaxCons { get; set; }
-        public int numOfServers { get; set; }
-        public double servConv { get; set; }
+        public int serverMaxCons;
+        public int numOfServers;
+        public double servConv;
 
-        public ServerPickert()
+        public IPServerPicker()
         {
             
         }
 
-        internal int determineServer(Socket client)
+        public int determineServer(Socket client)
         {
             string ip = ((IPEndPoint)client.RemoteEndPoint).Address.ToString();
             ip = ip.Replace(".", "");

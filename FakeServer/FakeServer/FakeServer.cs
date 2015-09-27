@@ -31,7 +31,6 @@ namespace FakeServer {
 
                 while (running) {
                     handle.Reset();
-                    Console.WriteLine("waiting for incoming connection");
                     s.BeginAccept(new AsyncCallback(handleConnection), s);
                     handle.WaitOne();
                 }
@@ -42,14 +41,19 @@ namespace FakeServer {
 
         public void handleConnection(IAsyncResult callback)
         {
-            Socket client = (Socket) callback.AsyncState;
-            Socket con = client.EndAccept(callback);
-
             handle.Set();
 
-            con.Receive(new byte[1024]);
-            con.Send(System.Text.Encoding.UTF8.GetBytes("This is server " + id + "."));
-            con.Close();
+            Socket client = (Socket) callback.AsyncState;
+            try {
+                Socket connection = client.EndAccept(callback);
+
+                connection.Receive(new byte[1024]);
+                connection.Send(System.Text.Encoding.UTF8.GetBytes("This is server " + id + "."));
+                connection.Close();
+            } catch (Exception e)
+            {
+                
+            }
         }
 
         public void Reboot() {
