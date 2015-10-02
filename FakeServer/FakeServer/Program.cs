@@ -27,16 +27,14 @@ namespace FakeServer {
 
                 input = input.ToLower();
 
-                if (input.Length < 5) {
-                    Console.WriteLine("Invalid command.");
-                } else if (input.IndexOf("crash", 0, 5) == 0) {
-                    int server = Int32.Parse(input.Substring(6, 1));
-                    server = (server < 1) ? (0) : ((server > servers.Count) ? (servers.Count - 1) : (server - 1));
-                    servers.ElementAt(server).Crash();
-                } else if (input.IndexOf("reboot", 0, 6) == 0) {
-                    int server = Int32.Parse(input.Substring(7, 1));
-                    server = (server < 1) ? (1) : ((server > servers.Count) ? (servers.Count) : (server - 1));
-                    servers.ElementAt(server).Reboot();
+                if (input.StartsWith("crash")) {
+                    int serverId = Int32.Parse(input.Substring(6, 1));
+                    serverId = (serverId < 1) ? (0) : ((serverId > servers.Count) ? (servers.Count - 1) : (serverId - 1));
+                    servers.ElementAt(serverId).Crash();
+                } else if (input.StartsWith("reboot")) {
+                    int serverId = Int32.Parse(input.Substring(7, 1));
+                    serverId = (serverId < 1) ? (0) : ((serverId > servers.Count) ? (servers.Count) : (serverId - 1));
+                    servers.ElementAt(serverId).Reboot();
                 } else {
                     Console.WriteLine("Invalid command.");
                 }
