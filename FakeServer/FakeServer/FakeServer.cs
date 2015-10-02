@@ -35,6 +35,7 @@ namespace FakeServer {
                     handle.WaitOne();
                 }
             } catch (Exception e) {
+                Console.WriteLine("Listen Error: {0}", e);
                 running = false;
             }
         }
@@ -52,7 +53,7 @@ namespace FakeServer {
                 connection.Close();
             } catch (Exception e)
             {
-                
+                Console.WriteLine("Handle Connection Error: {0}",e);
             }
         }
 

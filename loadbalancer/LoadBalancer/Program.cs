@@ -39,14 +39,14 @@ namespace LoadBalancer {
 
                 switch (input)
                 {
-                    case "round robin":
-                        lb.setServerPicker(new RoundRobinServerPicker());
-                        Console.WriteLine("Switched to Round Robin picking..");
-                        break;
-                    default:
                     case "ip":
                         lb.setServerPicker(new IPServerPicker());
                         Console.WriteLine("Switched to IP based picking..");
+                        break;
+                    default:
+                    case "round robin":
+                        lb.setServerPicker(new RoundRobinServerPicker());
+                        Console.WriteLine("Switched to Round Robin picking..");
                         break;
                 }
             }
