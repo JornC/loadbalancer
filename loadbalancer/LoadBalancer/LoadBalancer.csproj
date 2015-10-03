@@ -53,14 +53,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RoundRobinServerPickert.cs" />
-    <Compile Include="IServerPickert.cs" />
-    <Compile Include="IPServerPickert.cs" />
+    <Compile Include="InputStreamReadWriter.cs" />
+    <Compile Include="strategies\BalanceStrategyFactory.cs" />
+    <Compile Include="strategies\RoundRobinBalanceStrategy.cs" />
+    <Compile Include="strategies\IBalanceStrategy.cs" />
+    <Compile Include="strategies\IPBalanceStrategy.cs" />
     <Compile Include="Conduit.cs" />
     <Compile Include="CrashChecker.cs" />
     <Compile Include="LoadBalancer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="strategies\AggressiveSessionPersistentBalanceStrategy.cs" />
+    <Compile Include="strategies\SessionPersistentBalanceStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

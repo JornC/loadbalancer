@@ -35,7 +35,6 @@ namespace FakeServer {
                     handle.WaitOne();
                 }
             } catch (Exception e) {
-                Console.WriteLine("Listen Error: {0}", e);
                 running = false;
             }
         }
@@ -53,7 +52,6 @@ namespace FakeServer {
                 connection.Close();
             } catch (Exception e)
             {
-                Console.WriteLine("Handle Connection Error: {0}",e);
             }
         }
 
@@ -81,7 +79,12 @@ namespace FakeServer {
 
             Console.WriteLine("Simulating crash for server " + id);
 
-            s.Close();
+            try {
+                s.Close();
+            } catch (Exception e)
+            {
+
+            }
         }
 
         public static FakeServer StartServert(int port, int id) {

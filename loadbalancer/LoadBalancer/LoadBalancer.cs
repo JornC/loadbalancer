@@ -15,7 +15,7 @@ namespace LoadBalancer {
         private bool running = false;
 
         private Socket listener;
-        private IServerPickert serverPicker;
+        private IBalanceStrategy serverPicker;
 
         /// <summary>
         /// Initializes a load balancer.
@@ -49,7 +49,7 @@ namespace LoadBalancer {
             updateBalanceData();
         }
 
-        internal void setServerPicker(IServerPickert serverPicker)
+        internal void setServerPicker(IBalanceStrategy serverPicker)
         {
             this.serverPicker = serverPicker;
             updateBalanceData();
@@ -131,10 +131,11 @@ namespace LoadBalancer {
                 if (!running) break;
 
                 int servNum = serverPicker.determineServer(client);
-
-                Conduit.HandleRequest(client, servers.ElementAt(servNum));
+                IPEndPoint server = servers.ElementAt(servNum);
                 string ip = ((IPEndPoint)client.RemoteEndPoint).Address.ToString();
-                Console.WriteLine("Request received, forwarding to server " + (servNum + 1) + ". Origin: " + ip);
+
+                Conduit.HandleRequest(client, server);
+                Console.WriteLine("Request received, forwarding to server {0}. Destination: {1}:{2}, Origin: {3}", servNum + 1, server.Address, server.Port, ip);
             }
         }
 

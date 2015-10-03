@@ -35,20 +35,14 @@ namespace LoadBalancer {
             while (true)
             {
                 Console.WriteLine("Input:");
+
                 String input = Console.ReadLine();
 
-                switch (input)
-                {
-                    case "ip":
-                        lb.setServerPicker(new IPServerPicker());
-                        Console.WriteLine("Switched to IP based picking..");
-                        break;
-                    default:
-                    case "round robin":
-                        lb.setServerPicker(new RoundRobinServerPicker());
-                        Console.WriteLine("Switched to Round Robin picking..");
-                        break;
-                }
+                IBalanceStrategy picker = BalanceStrategyFactory.getStrategy(input);
+
+                Console.WriteLine("Switching to: {0}", picker.GetType().Name);
+
+                lb.setServerPicker(picker);
             }
         }
     }

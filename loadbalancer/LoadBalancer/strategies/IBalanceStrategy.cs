@@ -2,7 +2,7 @@
 
 namespace LoadBalancer
 {
-    internal interface IServerPickert
+    internal interface IBalanceStrategy
     {
         int determineServer(Socket client);
 
