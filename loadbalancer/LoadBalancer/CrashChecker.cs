@@ -84,12 +84,12 @@ namespace LoadBalancer {
         }
 
         private void CrashDetected(IPEndPoint ep, int id) {
-            Console.WriteLine("Server " + (id + 1) + " just endured a crash, notifying load balancer..");
+            Console.WriteLine("Server {0} just endured a crash, notifying load balancer..", id + 1);
             Crash(ep, id);
         }
 
         private void RebootDetected(IPEndPoint ep, int id) {
-            Console.WriteLine("Server " + (id + 1) + " magically re-entered my radar, notifying load balancer..");
+            Console.WriteLine("Server {0} magically re-entered my radar, notifying load balancer..", id + 1);
             Reboot(ep, id);
         }
 

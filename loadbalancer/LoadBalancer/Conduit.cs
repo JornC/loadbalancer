@@ -9,10 +9,10 @@ using System.Runtime.CompilerServices;
 
 namespace LoadBalancer {
     class Conduit {
-        private Socket client;
+        private IInputStreamReadWriter client;
         private IPEndPoint serverEndPoint;
 
-        private Conduit(Socket client, IPEndPoint serverEndPoint) {
+        private Conduit(IInputStreamReadWriter client, IPEndPoint serverEndPoint) {
             this.client = client;
             this.serverEndPoint = serverEndPoint;
         }
@@ -22,22 +22,29 @@ namespace LoadBalancer {
             try {
                 server.Connect(serverEndPoint);
 
-                ForwardResponse(client, server);
-                ForwardResponse(server, client);
+                IInputStreamReadWriter serverWrapper = SocketInputStreamReadWriter.Wrap(server);
+
+                ForwardResponse(client, serverWrapper);
+                ForwardResponse(serverWrapper, client);
             } catch (Exception e) {
+                Console.WriteLine(e);
                 Console.WriteLine("Something's gone wrong, closing connection..");
+                
             } finally {
                 server.Close();
                 client.Close();
             }
         }
 
-        private void ForwardResponse(Socket origin, Socket destination) {
+        private void ForwardResponse(IInputStreamReadWriter origin, IInputStreamReadWriter destination) {
             byte[] ba = new byte[1024];
             int length;
             while (true) {
+                Console.Write("Receiving in conduit - {0} .... ", origin.GetType().Name);
                 length = origin.Receive(ba);
+                Console.WriteLine(" ... done.");
                 destination.Send(ba, length, SocketFlags.None);
+                Console.WriteLine("Done 2.");
 
                 if (length < ba.Length) break;
             }
@@ -48,7 +55,7 @@ namespace LoadBalancer {
         /// </summary>
         /// <param name="client">Socket connection with a client</param>
         /// <param name="servers">List of IPEndPoints of servers</param>
-        public static void HandleRequest(Socket client, IPEndPoint serverEndPoint) {
+        public static void HandleRequest(IInputStreamReadWriter client, IPEndPoint serverEndPoint) {
             Conduit p = new Conduit(client, serverEndPoint);
             Thread t = new Thread(p.HandleRequest);
             t.Start();

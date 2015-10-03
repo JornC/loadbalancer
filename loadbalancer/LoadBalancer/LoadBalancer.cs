@@ -28,7 +28,7 @@ namespace LoadBalancer {
             checker.Crash += CrashServer;
             checker.Reboot += RebootServer;
 
-            serverPicker = new RoundRobinServerPicker();
+            serverPicker = new RoundRobinBalanceStrategy();
 
             listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             listener.Bind(new IPEndPoint(IPAddress.Any, 8080));
@@ -126,15 +126,17 @@ namespace LoadBalancer {
             Console.WriteLine();
 
             while (running) {
-                Socket client = listener.Accept();
-
+                IInputStreamReadWriter client = SocketInputStreamReadWriter.Wrap(listener.Accept());
+                
                 if (!running) break;
 
-                int servNum = serverPicker.determineServer(client);
-                IPEndPoint server = servers.ElementAt(servNum);
-                string ip = ((IPEndPoint)client.RemoteEndPoint).Address.ToString();
+                IInputStreamReadWriter proxy;
 
-                Conduit.HandleRequest(client, server);
+                string ip = ((IPEndPoint)client.RemoteEndPoint).Address.ToString();
+                int servNum = serverPicker.determineServer(client, out proxy);
+                IPEndPoint server = servers.ElementAt(servNum);
+
+                Conduit.HandleRequest(proxy, server);
                 Console.WriteLine("Request received, forwarding to server {0}. Destination: {1}:{2}, Origin: {3}", servNum + 1, server.Address, server.Port, ip);
             }
         }

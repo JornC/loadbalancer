@@ -53,7 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InputStreamReadWriter.cs" />
+    <Compile Include="IInputStreamReadWriter.cs" />
+    <Compile Include="MockInputStreamReadWriter.cs" />
+    <Compile Include="SocketInputStreamReadWriter.cs" />
     <Compile Include="strategies\BalanceStrategyFactory.cs" />
     <Compile Include="strategies\RoundRobinBalanceStrategy.cs" />
     <Compile Include="strategies\IBalanceStrategy.cs" />

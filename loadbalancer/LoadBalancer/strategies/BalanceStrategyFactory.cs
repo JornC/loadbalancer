@@ -13,14 +13,17 @@ namespace LoadBalancer
             switch (input)
             {
                 case "ip":
-                    return new IPServerPicker();
+                    return new IPBalanceStrategy();
                 case "session":
                 case "session persistent":
                     return new SessionPersistentBalanceStrategy();
+                case "asession":
+                case "agressive session persistent":
+                    return new AggressiveSessionPersistentBalanceStrategy();
                 default:
                 case "round":
                 case "round robin":
-                    return new RoundRobinServerPicker();
+                    return new RoundRobinBalanceStrategy();
             }
         }
     }

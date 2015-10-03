@@ -9,7 +9,12 @@ namespace LoadBalancer
 {
     class AggressiveSessionPersistentBalanceStrategy : IBalanceStrategy
     {
-        public int determineServer(Socket client)
+        public int determineServer(IInputStreamReadWriter client)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int determineServer(IInputStreamReadWriter client, out IInputStreamReadWriter proxy)
         {
             throw new NotImplementedException();
         }

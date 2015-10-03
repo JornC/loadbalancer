@@ -8,15 +8,22 @@ using System.Threading.Tasks;
 
 namespace LoadBalancer
 {
-    class RoundRobinServerPicker : IBalanceStrategy
+    class RoundRobinBalanceStrategy : IBalanceStrategy
     {
         public int numOfServers;
 
         int hop = 0;
 
-        public int determineServer(Socket client)
+        public int determineServer(IInputStreamReadWriter client)
         {
             return hop++ % numOfServers;
+        }
+
+        public int determineServer(IInputStreamReadWriter client, out IInputStreamReadWriter proxy)
+        {
+            proxy = client;
+
+            return determineServer(client);
         }
 
         public void updateBalanceData(int count)

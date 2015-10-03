@@ -48,7 +48,7 @@ namespace FakeServer {
                 Socket connection = client.EndAccept(callback);
 
                 connection.Receive(new byte[1024]);
-                connection.Send(System.Text.Encoding.UTF8.GetBytes("This is server " + id + "."));
+                connection.Send(System.Text.Encoding.UTF8.GetBytes(String.Format("HTTP/1.1 200 OK\r\nset-cookie: JSESSIONID={0}; expires=Sat, 02 May 2016 23:38:25 GMT;\r\n\r\nThis is server {1}", id, id)));
                 connection.Close();
             } catch (Exception e)
             {
