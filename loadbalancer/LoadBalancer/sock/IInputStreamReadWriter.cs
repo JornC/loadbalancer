@@ -21,5 +21,7 @@ namespace LoadBalancer
         void Send(byte[] ba, int length, SocketFlags flags);
 
         Socket getSocket();
+
+        void Wrap(Socket sock);
     }
 }

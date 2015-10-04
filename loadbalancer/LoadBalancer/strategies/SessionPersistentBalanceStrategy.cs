@@ -1,4 +1,5 @@
-﻿using LoadBalancer.strategies;
+﻿using LoadBalancer.sock;
+using LoadBalancer.strategies;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,7 +78,7 @@ namespace LoadBalancer
                 if (!sessionMap.ContainsKey(sessionID))
                 {
                     Console.WriteLine("Session not (yet) in cache - falling back to backup.");
-                    sessionMap[sessionID] = backup.determineServer(proxy);
+                    InsertSession(sessionID, backup.determineServer(proxy));
                 }
 
                 int serverNumber = sessionMap[sessionID];
@@ -86,7 +87,7 @@ namespace LoadBalancer
                 {
                     Console.WriteLine("Server does not exist (anymore)! Session:{0} serverNum:{1}", sessionID, serverNumber);
                     serverNumber = backup.determineServer(proxy);
-                    sessionMap[sessionID] = serverNumber;
+                    InsertSession(sessionID, serverNumber);
                 }
 
                 return serverNumber;
@@ -94,6 +95,11 @@ namespace LoadBalancer
             {
                 return backup.determineServer(proxy);
             }
+        }
+
+        internal void InsertSession(string sessionID, int servNum)
+        {
+            sessionMap[sessionID] = servNum;
         }
 
         private string getSessionID(string cookies)
@@ -109,6 +115,11 @@ namespace LoadBalancer
             }
 
             return null;
+        }
+
+        public override IInputStreamReadWriter getResponseWrapper(int servNum)
+        {
+            return new PersistentInputStreamReadWriter(this, servNum);
         }
 
         public override void updateBalanceData(ICollection<int> serverKeys)

@@ -10,5 +10,7 @@ namespace LoadBalancer
         int determineServer(IInputStreamReadWriter client);
 
         void updateBalanceData(ICollection<int> count);
+
+        IInputStreamReadWriter getResponseWrapper(int servNum);
     }
 }

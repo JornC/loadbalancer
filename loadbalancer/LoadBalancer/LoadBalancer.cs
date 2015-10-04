@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using System.Threading;
+using LoadBalancer.sock;
 
 namespace LoadBalancer {
     class LoadBalancer {
@@ -111,7 +112,7 @@ namespace LoadBalancer {
             Console.WriteLine();
 
             while (running) {
-                IInputStreamReadWriter client = SocketInputStreamReadWriter.Wrap(listener.Accept());
+                IInputStreamReadWriter client = new SocketInputStreamReadWriter(listener.Accept());
                 
                 if (!running) break;
 
@@ -129,7 +130,8 @@ namespace LoadBalancer {
 
                 IPEndPoint server = servers[servNum];
 
-                Conduit.HandleRequest(proxy, server);
+                Conduit.HandleRequest(proxy, server, serverPicker.getResponseWrapper(servNum));
+
                 Console.WriteLine("Request received, forwarding to server {0}. Destination: {1}:{2}, Origin: {3}", servNum + 1, server.Address, server.Port, ip);
             }
         }

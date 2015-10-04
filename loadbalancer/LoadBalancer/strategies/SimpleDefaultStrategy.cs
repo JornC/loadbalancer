@@ -36,5 +36,10 @@ namespace LoadBalancer.strategies
         public abstract int determineServer(IInputStreamReadWriter client, out IInputStreamReadWriter proxy);
 
         public abstract int determineServer(IInputStreamReadWriter client);
+
+        public virtual IInputStreamReadWriter getResponseWrapper(int servNum)
+        {
+            return new SocketInputStreamReadWriter();
+        }
     }
 }

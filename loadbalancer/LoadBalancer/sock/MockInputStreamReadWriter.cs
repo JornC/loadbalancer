@@ -75,5 +75,10 @@ namespace LoadBalancer
         {
             return sock;
         }
+
+        public void Wrap(Socket sock)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

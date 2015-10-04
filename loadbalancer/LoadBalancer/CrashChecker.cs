@@ -129,6 +129,7 @@ namespace LoadBalancer {
 
                     try {
                         s.Connect(ep);
+                        s.Send(ASCIIEncoding.ASCII.GetBytes("health"));
                     } catch (Exception e) {
                         if (!running) break;
 

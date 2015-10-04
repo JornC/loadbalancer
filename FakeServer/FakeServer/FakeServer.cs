@@ -50,14 +50,23 @@ namespace FakeServer {
                 byte[] ba = new byte[1024];
                 int length = connection.Receive(ba);
 
-                string lolz = ASCIIEncoding.ASCII.GetString(ba, 0, length);
-                if (lolz.Contains("JSESSIONID"))
+                string content = ASCIIEncoding.ASCII.GetString(ba, 0, length);
+                if(content.Contains("health"))
                 {
-                    connection.Send(System.Text.Encoding.UTF8.GetBytes(String.Format("This server {1}", id, id)));
+                    // Ignore health check outputs (send nothing)
+                    connection.Send(System.Text.Encoding.UTF8.GetBytes(String.Format("This is server {0}", id)));
+                }
+                else if (!content.Contains("JSESSIONID"))
+                {
+                    // Set session-cookie if it doesn't exist yet.
+                    Console.WriteLine("Server {0} initiates a session and sending a response.", id);
+                    connection.Send(System.Text.Encoding.UTF8.GetBytes(String.Format("HTTP/1.1 200 OK\r\nset-cookie:JSESSIONID={0}; expires=Sat, 02 May 2016 23:38:25 GMT;\r\n\r\nThis is server {1}", id, id)));
                 } else
                 {
-                    connection.Send(System.Text.Encoding.UTF8.GetBytes(String.Format("HTTP/1.1 200 OK\r\nset-cookie: JSESSIONID={0}; expires=Sat, 02 May 2016 23:38:25 GMT;\r\n\r\nThis is server {1}", id, id)));
+                    Console.WriteLine("Server {0} sending a response.", id);
+                    connection.Send(System.Text.Encoding.UTF8.GetBytes(String.Format("This is server {0}", id)));
                 }
+
 
                 connection.Close();
             } catch (Exception e)
@@ -97,7 +106,7 @@ namespace FakeServer {
             }
         }
 
-        public static FakeServer StartServert(int port, int id) {
+        public static FakeServer StartServer(int port, int id) {
             FakeServer serv = new FakeServer(port, id);
             Thread t = new Thread(serv.Listen);
             t.Start();

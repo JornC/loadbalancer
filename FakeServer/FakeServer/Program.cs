@@ -9,14 +9,14 @@ namespace FakeServer {
         static void Main(string[] args) {
             List<FakeServer> servers = new List<FakeServer>();
 
-            servers.Add(FakeServer.StartServert(8081, 1));
-            servers.Add(FakeServer.StartServert(8082, 2));
-            servers.Add(FakeServer.StartServert(8083, 3));
-            servers.Add(FakeServer.StartServert(8084, 4));
-            servers.Add(FakeServer.StartServert(8085, 5));
-            servers.Add(FakeServer.StartServert(8086, 6));
-            servers.Add(FakeServer.StartServert(8087, 7));
-            servers.Add(FakeServer.StartServert(8088, 8));
+            servers.Add(FakeServer.StartServer(8081, 1));
+            servers.Add(FakeServer.StartServer(8082, 2));
+            servers.Add(FakeServer.StartServer(8083, 3));
+            servers.Add(FakeServer.StartServer(8084, 4));
+            servers.Add(FakeServer.StartServer(8085, 5));
+            servers.Add(FakeServer.StartServer(8086, 6));
+            servers.Add(FakeServer.StartServer(8087, 7));
+            servers.Add(FakeServer.StartServer(8088, 8));
 
             Thread.Sleep(50);
 

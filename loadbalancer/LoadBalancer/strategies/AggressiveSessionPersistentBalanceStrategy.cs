@@ -19,6 +19,11 @@ namespace LoadBalancer
             throw new NotImplementedException();
         }
 
+        public IInputStreamReadWriter getResponseWrapper(int servNum)
+        {
+            throw new NotImplementedException();
+        }
+
         public void updateBalanceData(ICollection<int> count)
         {
             throw new NotImplementedException();

@@ -11,10 +11,12 @@ namespace LoadBalancer {
     class Conduit {
         private IInputStreamReadWriter client;
         private IPEndPoint serverEndPoint;
+        private IInputStreamReadWriter wrapper;
 
-        private Conduit(IInputStreamReadWriter client, IPEndPoint serverEndPoint) {
+        private Conduit(IInputStreamReadWriter client, IPEndPoint serverEndPoint, IInputStreamReadWriter wrapper) {
             this.client = client;
             this.serverEndPoint = serverEndPoint;
+            this.wrapper = wrapper;
         }
 
         private void HandleRequest() {
@@ -22,10 +24,10 @@ namespace LoadBalancer {
             try {
                 server.Connect(serverEndPoint);
 
-                IInputStreamReadWriter serverWrapper = SocketInputStreamReadWriter.Wrap(server);
+                wrapper.Wrap(server);
 
-                ForwardResponse(client, serverWrapper);
-                ForwardResponse(serverWrapper, client);
+                ForwardResponse(client, wrapper);
+                ForwardResponse(wrapper, client);
             } catch (Exception e) {
                 Console.WriteLine("Something's gone wrong, closing connection..");
                 
@@ -51,8 +53,8 @@ namespace LoadBalancer {
         /// </summary>
         /// <param name="client">Socket connection with a client</param>
         /// <param name="servers">List of IPEndPoints of servers</param>
-        public static void HandleRequest(IInputStreamReadWriter client, IPEndPoint serverEndPoint) {
-            Conduit p = new Conduit(client, serverEndPoint);
+        public static void HandleRequest(IInputStreamReadWriter client, IPEndPoint serverEndPoint, IInputStreamReadWriter wrapper) {
+            Conduit p = new Conduit(client, serverEndPoint, wrapper);
             Thread t = new Thread(p.HandleRequest);
             t.Start();
         }

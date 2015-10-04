@@ -20,9 +20,14 @@ namespace LoadBalancer
             }
         }
 
+        public SocketInputStreamReadWriter()
+        {
+
+        }
+
         public SocketInputStreamReadWriter(Socket sock)
         {
-            this.sock = sock;
+            Wrap(sock);
         }
 
         public int Receive(byte[] ba)
@@ -33,11 +38,6 @@ namespace LoadBalancer
         public void Feed(byte[] ba, int length)
         {
             throw new NotImplementedException();
-        }
-
-        public static SocketInputStreamReadWriter Wrap(Socket sock)
-        {
-            return new SocketInputStreamReadWriter(sock);
         }
 
         public void Close()
@@ -53,6 +53,11 @@ namespace LoadBalancer
         public Socket getSocket()
         {
             return sock;
+        }
+
+        public void Wrap(Socket sock)
+        {
+            this.sock = sock;
         }
     }
 }
