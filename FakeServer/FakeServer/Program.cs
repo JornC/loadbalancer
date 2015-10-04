@@ -8,6 +8,8 @@ namespace FakeServer {
     class Program {
         static void Main(string[] args) {
             List<FakeServer> servers = new List<FakeServer>();
+            
+            Console.Title = "Fake servers.";
 
             servers.Add(FakeServer.StartServer(8081, 1));
             servers.Add(FakeServer.StartServer(8082, 2));

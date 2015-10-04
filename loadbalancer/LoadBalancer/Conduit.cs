@@ -43,7 +43,7 @@ namespace LoadBalancer {
             while (true) {
                 length = origin.Receive(ba);
                 destination.Send(ba, length, SocketFlags.None);
-
+                
                 if (length < ba.Length) break;
             }
         }
