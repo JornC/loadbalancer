@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace LoadBalancer {
     class CrashChecker {
-        private List<IPEndPoint> servers;
+        private Dictionary<int, IPEndPoint> servers;
         private List<Check> checkers;
 
         public delegate void ServerNotification(IPEndPoint ep, int id);
@@ -18,13 +18,11 @@ namespace LoadBalancer {
         private int interval;
         private bool running;
 
-        public CrashChecker() { }
-
         /// <summary>
         /// Sets the server list
         /// </summary>
         /// <param name="servers">List of servers</param>
-        public void SetServers(List<IPEndPoint> servers) {
+        public void SetServers(Dictionary<int, IPEndPoint> servers) {
             this.servers = servers;
 
             if (running) {
@@ -53,8 +51,8 @@ namespace LoadBalancer {
 
             checkers = new List<Check>();
 
-            for (int i = 0; i < servers.Count; i++) {
-                Check cc = new Check(servers.ElementAt(i), interval, i);
+            foreach(KeyValuePair<int, IPEndPoint> entry in servers) {
+                Check cc = new Check(entry.Value, interval, entry.Key);
                 cc.Crash += CrashDetected;
                 cc.Reboot += RebootDetected;
                 checkers.Add(cc);

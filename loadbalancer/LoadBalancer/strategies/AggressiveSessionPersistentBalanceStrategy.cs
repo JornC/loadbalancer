@@ -19,7 +19,7 @@ namespace LoadBalancer
             throw new NotImplementedException();
         }
 
-        public void updateBalanceData(int count)
+        public void updateBalanceData(ICollection<int> count)
         {
             throw new NotImplementedException();
         }

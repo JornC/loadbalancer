@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoadBalancer.strategies;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -8,27 +9,25 @@ using System.Threading.Tasks;
 
 namespace LoadBalancer
 {
-    class RoundRobinBalanceStrategy : IBalanceStrategy
+    class RoundRobinBalanceStrategy : SimpleDefaultStrategy
     {
-        public int numOfServers;
-
         int hop = 0;
 
-        public int determineServer(IInputStreamReadWriter client)
+        public override int determineServer(IInputStreamReadWriter client)
         {
-            return hop++ % numOfServers;
+            if(Count == 0)
+            {
+                return 0;
+            }
+
+            return getKeyFromIndex(hop = ++hop % Count);
         }
 
-        public int determineServer(IInputStreamReadWriter client, out IInputStreamReadWriter proxy)
+        public override int determineServer(IInputStreamReadWriter client, out IInputStreamReadWriter proxy)
         {
             proxy = client;
 
             return determineServer(client);
-        }
-
-        public void updateBalanceData(int count)
-        {
-            numOfServers = count;
         }
     }
 }

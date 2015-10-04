@@ -27,7 +27,6 @@ namespace LoadBalancer {
                 ForwardResponse(client, serverWrapper);
                 ForwardResponse(serverWrapper, client);
             } catch (Exception e) {
-                Console.WriteLine(e);
                 Console.WriteLine("Something's gone wrong, closing connection..");
                 
             } finally {
@@ -40,11 +39,8 @@ namespace LoadBalancer {
             byte[] ba = new byte[1024];
             int length;
             while (true) {
-                Console.Write("Receiving in conduit - {0} .... ", origin.GetType().Name);
                 length = origin.Receive(ba);
-                Console.WriteLine(" ... done.");
                 destination.Send(ba, length, SocketFlags.None);
-                Console.WriteLine("Done 2.");
 
                 if (length < ba.Length) break;
             }

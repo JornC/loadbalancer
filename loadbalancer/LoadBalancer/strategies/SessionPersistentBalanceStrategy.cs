@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoadBalancer.strategies;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -7,21 +8,20 @@ using System.Threading.Tasks;
 
 namespace LoadBalancer
 {
-    class SessionPersistentBalanceStrategy : IBalanceStrategy
+    class SessionPersistentBalanceStrategy : SimpleDefaultStrategy
     {
         private const int BUFFER_SIZE = 1024;
 
         Dictionary<string, int> sessionMap = new Dictionary<string, int>();
 
         private IBalanceStrategy backup = new RoundRobinBalanceStrategy();
-        private int servNum;
 
-        public int determineServer(IInputStreamReadWriter client)
+        public override int determineServer(IInputStreamReadWriter client)
         {
             throw new NotImplementedException();
         }
 
-        public int determineServer(IInputStreamReadWriter client, out IInputStreamReadWriter proxy)
+        public override int determineServer(IInputStreamReadWriter client, out IInputStreamReadWriter proxy)
        { 
             proxy = new MockInputStreamReadWriter(client.getSocket());
 
@@ -30,9 +30,7 @@ namespace LoadBalancer
             string content = "";
             while (true)
             {
-                Console.Write("Receiving (balancer) .. " + client.GetType().Name);
                 length = client.Receive(ba);
-                Console.WriteLine(" .. Done.");
 
                 if(length == 0)
                 {
@@ -48,7 +46,6 @@ namespace LoadBalancer
 
             if(content.Equals(""))
             {
-                Console.WriteLine("Bitchbitch.");
                 return 0;
             }
 
@@ -70,17 +67,28 @@ namespace LoadBalancer
 
                 if(sessionID == null)
                 {
+                    Console.WriteLine("No session found - doing backup strategy.");
                     return backup.determineServer(proxy);
+                } else
+                {
+                    Console.WriteLine("Found session with id {0}", sessionID);
                 }
 
                 if (!sessionMap.ContainsKey(sessionID))
                 {
-                    sessionMap.Add(sessionID, backup.determineServer(proxy));
+                    Console.WriteLine("Session not (yet) in cache - falling back to backup.");
+                    sessionMap[sessionID] = backup.determineServer(proxy);
                 }
 
-                Console.WriteLine("Session ID - {0}", sessionID);
-                int serverNumber;
-                sessionMap.TryGetValue(sessionID, out serverNumber);
+                int serverNumber = sessionMap[sessionID];
+
+                if(!Exists(serverNumber))
+                {
+                    Console.WriteLine("Server does not exist (anymore)! Session:{0} serverNum:{1}", sessionID, serverNumber);
+                    serverNumber = backup.determineServer(proxy);
+                    sessionMap[sessionID] = serverNumber;
+                }
+
                 return serverNumber;
             } else
             {
@@ -103,10 +111,10 @@ namespace LoadBalancer
             return null;
         }
 
-        public void updateBalanceData(int count)
+        public override void updateBalanceData(ICollection<int> serverKeys)
         {
-            backup.updateBalanceData(count);
-            servNum = count;
+            base.updateBalanceData(serverKeys);
+            backup.updateBalanceData(serverKeys);
         }
     }
 }

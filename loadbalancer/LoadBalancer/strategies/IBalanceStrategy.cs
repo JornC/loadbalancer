@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Collections.Generic;
+using System.Net.Sockets;
 
 namespace LoadBalancer
 {
@@ -8,6 +9,6 @@ namespace LoadBalancer
         
         int determineServer(IInputStreamReadWriter client);
 
-        void updateBalanceData(int count);
+        void updateBalanceData(ICollection<int> count);
     }
 }

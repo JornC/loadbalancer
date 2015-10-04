@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace LoadBalancer {
     class LoadBalancer {
-        private List<IPEndPoint> servers = new List<IPEndPoint>();
+        private Dictionary<int, IPEndPoint> servers = new Dictionary<int, IPEndPoint>();
 
         private CrashChecker checker;
 
@@ -23,7 +23,7 @@ namespace LoadBalancer {
         /// <param name="port">Port number the load balancer will run on</param>
         public LoadBalancer(int port) {
             checker = new CrashChecker();
-            checker.SetInterval(2500);
+            checker.SetInterval(1500);
             checker.SetServers(servers);
             checker.Crash += CrashServer;
             checker.Reboot += RebootServer;
@@ -44,8 +44,7 @@ namespace LoadBalancer {
         /// <param name="ip">IP Address of the server</param>
         /// <param name="port">Port number the server is running on</param>
         public void AddServer(IPEndPoint ep) {
-            servers.Add(ep);
-            checker.SetServers(servers);
+            servers.Add(servers.Count, ep);
             updateBalanceData();
         }
 
@@ -61,8 +60,8 @@ namespace LoadBalancer {
         /// <param name="ep">Server location</param>
         /// <param name="id">Server id</param>
         public void RebootServer(IPEndPoint ep, int id) {
-            servers.RemoveAt(id);
-            servers.Insert(id, ep);
+            servers.Remove(id);
+            servers.Add(id, ep);
         }
 
         /// <summary>
@@ -70,31 +69,17 @@ namespace LoadBalancer {
         /// </summary>
         /// <param name="ep"></param>
         public void CrashServer(IPEndPoint ep, int id) {
-            bool correctLast = false;
-            if (ep == servers.Last()) {
-                correctLast = true;
-            }
-
-            for(int i = servers.Count - 1; i >= 0; i--) {
-                if(servers.ElementAt(i) == ep) {
-                    servers.RemoveAt(i);
-                    servers.Insert(i, servers.ElementAt((i < servers.Count) ? (i) : (0)));
-                }
-            }
-
-            if (correctLast) {
-                servers.RemoveAt(servers.Count - 1);
-                servers.Insert(servers.Count, servers.ElementAt(0));
-            }
+            servers.Remove(id);
+            updateBalanceData();
         }
 
         /// <summary>
         /// Dumps a simple server overview to the console.
         /// </summary>
         public void DumpOverview() {
-            for(int i = 0; i < servers.Count; i++) {
-                IPEndPoint ep = servers.ElementAt(i);
-                Console.WriteLine("Server "+(i+1)+": "+ep.Address + ":" + ep.Port);
+            foreach(KeyValuePair<int, IPEndPoint> entry in servers) {
+                IPEndPoint value = entry.Value;
+                Console.WriteLine("Server {0}: {1}:{2}", entry.Key, value.Address, value.Port);
             }
         }
 
@@ -134,7 +119,15 @@ namespace LoadBalancer {
 
                 string ip = ((IPEndPoint)client.RemoteEndPoint).Address.ToString();
                 int servNum = serverPicker.determineServer(client, out proxy);
-                IPEndPoint server = servers.ElementAt(servNum);
+
+                if (!servers.ContainsKey(servNum))
+                {
+                    proxy.Close();
+                    Console.WriteLine("Server was not found (list empty?): {0}", servNum);
+                    continue;
+                }
+
+                IPEndPoint server = servers[servNum];
 
                 Conduit.HandleRequest(proxy, server);
                 Console.WriteLine("Request received, forwarding to server {0}. Destination: {1}:{2}, Origin: {3}", servNum + 1, server.Address, server.Port, ip);
@@ -142,7 +135,7 @@ namespace LoadBalancer {
         }
 
         private void updateBalanceData() {
-            serverPicker.updateBalanceData(servers.Count);
+            serverPicker.updateBalanceData(servers.Keys);
         }
     }
 }

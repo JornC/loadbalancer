@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoadBalancer.strategies;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -8,27 +9,21 @@ using System.Threading.Tasks;
 
 namespace LoadBalancer
 {
-    class IPBalanceStrategy : IBalanceStrategy
+    class IPBalanceStrategy : SimpleDefaultStrategy 
     {
-        public int numOfServers;
 
-        public int determineServer(IInputStreamReadWriter client)
+        public override int determineServer(IInputStreamReadWriter client)
         {
             string ip = ((IPEndPoint)client.RemoteEndPoint).Address.ToString();
 
-            return Math.Abs(ip.GetHashCode()) % numOfServers;
+            return getKeyFromIndex(Math.Abs(ip.GetHashCode()) % Count);
         }
 
-        public int determineServer(IInputStreamReadWriter client, out IInputStreamReadWriter proxy)
+        public override int determineServer(IInputStreamReadWriter client, out IInputStreamReadWriter proxy)
         {
             proxy = client;
 
             return determineServer(client);
-        }
-
-        public void updateBalanceData(int count)
-        {
-            numOfServers = count;
         }
     }
 }

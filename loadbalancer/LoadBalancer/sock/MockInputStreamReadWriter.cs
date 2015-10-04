@@ -68,7 +68,6 @@ namespace LoadBalancer
 
         public void Send(byte[] ba, int length, SocketFlags flags)
         {
-            Console.WriteLine("Sending in mock.");
             sock.Send(ba, length, flags);
         }
 

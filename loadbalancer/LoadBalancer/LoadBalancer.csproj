@@ -53,9 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IInputStreamReadWriter.cs" />
-    <Compile Include="MockInputStreamReadWriter.cs" />
-    <Compile Include="SocketInputStreamReadWriter.cs" />
+    <Compile Include="sock\IInputStreamReadWriter.cs" />
+    <Compile Include="sock\MockInputStreamReadWriter.cs" />
+    <Compile Include="sock\SocketInputStreamReadWriter.cs" />
     <Compile Include="strategies\BalanceStrategyFactory.cs" />
     <Compile Include="strategies\RoundRobinBalanceStrategy.cs" />
     <Compile Include="strategies\IBalanceStrategy.cs" />
@@ -67,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="strategies\AggressiveSessionPersistentBalanceStrategy.cs" />
     <Compile Include="strategies\SessionPersistentBalanceStrategy.cs" />
+    <Compile Include="strategies\SimpleDefaultStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
